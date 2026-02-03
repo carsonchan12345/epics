@@ -188,6 +188,35 @@ puts e.CD1(File.read("/where/the/xml/is/stored.xml"))
 
 ```
 
+### Generic Operations
+
+For operation codes not directly supported by the library, you can use the generic methods:
+
+#### Generic Upload
+
+```ruby
+# Upload with custom operation code
+e.generic_upload('XYZ', document)
+
+# Upload with custom operation code and order attribute
+e.generic_upload('ABC', document, order_attribute: 'UZHNN')
+```
+
+#### Generic Download
+
+```ruby
+# Download with custom operation code (no date range)
+e.generic_download('XYZ')
+
+# Download with custom operation code and date range
+e.generic_download('XYZ', from: '2024-01-01', to: '2024-01-31')
+
+# Download with custom operation code and order attribute
+e.generic_download('ABC', order_attribute: 'DZNNN')
+```
+
+These methods allow you to work with any EBICS operation codes that your bank supports, even if they're not explicitly implemented in the library.
+
 ### Lazy Mode
 
 Once you have a client, go ahead and start playing! There are 3 convenience methods
