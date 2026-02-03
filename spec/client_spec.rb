@@ -324,4 +324,54 @@ RSpec.describe Epics::Client do
       end
     end
   end
+
+  describe '#generic_upload' do
+    let(:document) { File.read(File.join(File.dirname(__FILE__), 'fixtures', 'xml', 'cd1.xml')) }
+    
+    before do
+      stub_request(:post, 'https://194.180.18.30/ebicsweb/ebicsweb')
+        .with(body: %r{<OrderType>XYZ</OrderType>.*<TransactionPhase>Initialisation</TransactionPhase>}m)
+        .to_return(status: 200, body: File.read(File.join(File.dirname(__FILE__), 'fixtures', 'xml', 'cd1_init_response.xml')))
+      stub_request(:post, 'https://194.180.18.30/ebicsweb/ebicsweb')
+        .with(body: %r{<OrderType>ABC</OrderType>.*<TransactionPhase>Initialisation</TransactionPhase>}m)
+        .to_return(status: 200, body: File.read(File.join(File.dirname(__FILE__), 'fixtures', 'xml', 'cd1_init_response.xml')))
+      stub_request(:post, 'https://194.180.18.30/ebicsweb/ebicsweb')
+        .with(body: %r{<TransactionPhase>Transfer</TransactionPhase>})
+        .to_return(status: 200, body: File.read(File.join(File.dirname(__FILE__), 'fixtures', 'xml', 'cd1_transfer_response.xml')))
+    end
+
+    it 'uploads with custom operation code' do
+      expect(subject.generic_upload('XYZ', document)).to eq(%w[387B7BE88FE33B0F4B60AC64A63F18E2 N00L])
+    end
+
+    it 'allows custom order attribute' do
+      expect(subject.generic_upload('ABC', document, order_attribute: 'UZHNN')).to eq(%w[387B7BE88FE33B0F4B60AC64A63F18E2 N00L])
+    end
+  end
+
+  describe '#generic_download' do
+    before do
+      stub_request(:post, 'https://194.180.18.30/ebicsweb/ebicsweb')
+        .with(body: %r{<OrderType>XYZ</OrderType>})
+        .to_return(status: 200, body: File.read(File.join(File.dirname(__FILE__), 'fixtures', 'xml', 'sta_response.xml')))
+      stub_request(:post, 'https://194.180.18.30/ebicsweb/ebicsweb')
+        .with(body: %r{<OrderType>ABC</OrderType>})
+        .to_return(status: 200, body: File.read(File.join(File.dirname(__FILE__), 'fixtures', 'xml', 'sta_response.xml')))
+      stub_request(:post, 'https://194.180.18.30/ebicsweb/ebicsweb')
+        .with(body: %r{<TransactionPhase>Receipt</TransactionPhase>})
+        .to_return(status: 200, body: File.read(File.join(File.dirname(__FILE__), 'fixtures', 'xml', 'receipt_response.xml')))
+    end
+
+    it 'downloads with custom operation code' do
+      expect(subject.generic_download('XYZ')).to be_a(String)
+    end
+
+    it 'downloads with custom operation code and date range' do
+      expect(subject.generic_download('XYZ', from: '2024-01-01', to: '2024-01-31')).to be_a(String)
+    end
+
+    it 'allows custom order attribute' do
+      expect(subject.generic_download('ABC', order_attribute: 'DZNNN')).to be_a(String)
+    end
+  end
 end

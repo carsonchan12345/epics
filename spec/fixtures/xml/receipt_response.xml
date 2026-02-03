@@ -1,0 +1,30 @@
+<ebicsResponse Revision="1" Version="H004" xmlns="urn:org:ebics:H004" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+  <header authenticate="true">
+    <static>
+      <TransactionID>ECD6F062AAEDFA77250526A68CBEC549</TransactionID>
+    </static>
+    <mutable>
+      <TransactionPhase>Receipt</TransactionPhase>
+      <ReturnCode>000000</ReturnCode>
+      <ReportText>[EBICS_OK] OK</ReportText>
+    </mutable>
+  </header>
+  <AuthSignature>
+    <ds:SignedInfo>
+      <ds:CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315" />
+      <ds:SignatureMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#rsa-sha256" />
+      <ds:Reference URI="#xpointer(//*[@authenticate='true'])">
+        <ds:Transforms>
+          <ds:Transform Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315" />
+        </ds:Transforms>
+        <ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256" />
+        <ds:DigestValue></ds:DigestValue>
+      </ds:Reference>
+    </ds:SignedInfo>
+    <ds:SignatureValue></ds:SignatureValue>
+  </AuthSignature>
+  <body>
+    <ReturnCode authenticate="true">000000</ReturnCode>
+    <TimestampBankParameter authenticate="true">2007-10-19T14:58:39.467Z</TimestampBankParameter>
+  </body>
+</ebicsResponse>

@@ -107,6 +107,14 @@ class Epics::Client
     self.public_send(type, from: from, to: to)
   end
 
+  def generic_upload(operation_code, document, order_attribute: 'OZHNN')
+    upload(Epics::GenericUpload, document, order_type: operation_code, order_attribute: order_attribute)
+  end
+
+  def generic_download(operation_code, from: nil, to: nil, order_attribute: 'DZHNN')
+    download(Epics::GenericDownload, order_type: operation_code, from: from, to: to, order_attribute: order_attribute)
+  end
+
   def HIA
     post(url, Epics::HIA.new(self).to_xml).body.ok?
   end
@@ -305,8 +313,8 @@ class Epics::Client
 
   private
 
-  def upload(order_type, document)
-    order = order_type.new(self, document)
+  def upload(order_type, document, **options)
+    order = order_type.new(self, document, **options)
     res = post(url, order.to_xml).body
     order.transaction_id = res.transaction_id
 
