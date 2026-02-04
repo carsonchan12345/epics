@@ -374,4 +374,77 @@ RSpec.describe Epics::Client do
       expect(subject.generic_download('ABC', order_attribute: 'DZNNN')).to be_a(String)
     end
   end
+
+  describe 'fuzzing parameters' do
+    subject { described_class.new(key, 'secret', 'https://194.180.18.30/ebicsweb/ebicsweb', 'SIZBN001', 'EBIX', 'EBICS', options) }
+    let(:options) { {} }
+
+    context 'with custom nonce as string' do
+      let(:options) { { custom_nonce: 'custom_nonce_value_123' } }
+
+      it 'allows setting custom_nonce' do
+        expect(subject.custom_nonce).to eq('custom_nonce_value_123')
+      end
+
+      it 'uses custom nonce in requests' do
+        request = Epics::GenericRequest.new(subject)
+        expect(request.nonce).to eq('custom_nonce_value_123')
+      end
+    end
+
+    context 'with custom nonce as proc' do
+      let(:counter) { [0] }
+      let(:options) { { custom_nonce: -> { counter[0] += 1; "nonce_#{counter[0]}" } } }
+
+      it 'allows setting custom_nonce as callable' do
+        expect(subject.custom_nonce).to be_a(Proc)
+      end
+
+      it 'uses custom nonce generator in requests' do
+        request = Epics::GenericRequest.new(subject)
+        expect(request.nonce).to eq('nonce_1')
+      end
+    end
+
+    context 'with custom timestamp as string' do
+      let(:options) { { custom_timestamp: '2024-01-01T12:00:00Z' } }
+
+      it 'allows setting custom_timestamp' do
+        expect(subject.custom_timestamp).to eq('2024-01-01T12:00:00Z')
+      end
+
+      it 'uses custom timestamp in requests' do
+        request = Epics::GenericRequest.new(subject)
+        expect(request.timestamp).to eq('2024-01-01T12:00:00Z')
+      end
+    end
+
+    context 'with custom timestamp as proc' do
+      let(:options) { { custom_timestamp: -> { '2025-12-31T23:59:59Z' } } }
+
+      it 'allows setting custom_timestamp as callable' do
+        expect(subject.custom_timestamp).to be_a(Proc)
+      end
+
+      it 'uses custom timestamp generator in requests' do
+        request = Epics::GenericRequest.new(subject)
+        expect(request.timestamp).to eq('2025-12-31T23:59:59Z')
+      end
+    end
+
+    context 'without custom parameters' do
+      it 'uses default nonce generation' do
+        request = Epics::GenericRequest.new(subject)
+        nonce = request.nonce
+        expect(nonce).to be_a(String)
+        expect(nonce.length).to eq(32) # SecureRandom.hex(16) produces 32 chars
+      end
+
+      it 'uses default timestamp generation' do
+        request = Epics::GenericRequest.new(subject)
+        timestamp = request.timestamp
+        expect(timestamp).to match(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/)
+      end
+    end
+  end
 end

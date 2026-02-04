@@ -124,6 +124,69 @@ You can choose to configure some default values like this
 e = Epics::Client.new(keys, 'passphrase', 'url', 'host', 'user', 'partner', locale: :fr, product_name: 'Mon Epic Client EBICS')
 ```
 
+### Security Testing and Fuzzing
+
+For security testing purposes, you can customize request parameters such as nonce and timestamp while maintaining valid signatures and encryption. This allows you to perform fuzzing tests on EBICS implementations.
+
+#### Custom Nonce
+
+You can set a custom nonce value as a string or provide a callable (Proc/Lambda) for dynamic generation:
+
+```ruby
+# Static custom nonce
+client = Epics::Client.new(
+  keys, 
+  'passphrase', 
+  'url', 
+  'host', 
+  'user', 
+  'partner',
+  custom_nonce: '00112233445566778899aabbccddeeff'
+)
+
+# Dynamic nonce generator for fuzzing
+counter = 0
+client = Epics::Client.new(
+  keys, 
+  'passphrase', 
+  'url', 
+  'host', 
+  'user', 
+  'partner',
+  custom_nonce: -> { counter += 1; "nonce_#{counter}" }
+)
+```
+
+#### Custom Timestamp
+
+Similarly, you can customize the timestamp:
+
+```ruby
+# Static custom timestamp
+client = Epics::Client.new(
+  keys, 
+  'passphrase', 
+  'url', 
+  'host', 
+  'user', 
+  'partner',
+  custom_timestamp: '2024-01-01T00:00:00Z'
+)
+
+# Dynamic timestamp for testing edge cases
+client = Epics::Client.new(
+  keys, 
+  'passphrase', 
+  'url', 
+  'host', 
+  'user', 
+  'partner',
+  custom_timestamp: -> { Time.now.utc.iso8601.sub(/\d{2}Z$/, '99Z') }  # Invalid seconds
+)
+```
+
+**Note**: Custom parameters are used in the request headers but do not affect the cryptographic signatures or encryption, allowing you to test various edge cases and malformed inputs safely.
+
 ## Features
 
 ### Initialization
