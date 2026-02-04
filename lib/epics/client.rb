@@ -2,7 +2,7 @@ class Epics::Client
   extend Forwardable
 
   attr_accessor :passphrase, :url, :host_id, :user_id, :partner_id, :keys, :keys_content, :locale, :product_name,
-                :x_509_certificates_content, :debug_mode
+                :x_509_certificates_content, :debug_mode, :custom_nonce, :custom_timestamp
 
   attr_writer :iban, :bic, :name
   
@@ -19,6 +19,8 @@ class Epics::Client
     self.locale = options[:locale] || Epics::DEFAULT_LOCALE
     self.product_name = options[:product_name] || Epics::DEFAULT_PRODUCT_NAME
     self.debug_mode = !!options[:debug_mode]
+    self.custom_nonce = options[:custom_nonce]
+    self.custom_timestamp = options[:custom_timestamp]
     self.x_509_certificates_content = {
       a: options[:x_509_certificate_a_content],
       x: options[:x_509_certificate_x_content],

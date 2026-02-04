@@ -9,11 +9,23 @@ class Epics::GenericRequest
   end
 
   def nonce
-    SecureRandom.hex(16)
+    if client.custom_nonce.respond_to?(:call)
+      client.custom_nonce.call
+    elsif client.custom_nonce
+      client.custom_nonce
+    else
+      SecureRandom.hex(16)
+    end
   end
 
   def timestamp
-    Time.now.utc.iso8601
+    if client.custom_timestamp.respond_to?(:call)
+      client.custom_timestamp.call
+    elsif client.custom_timestamp
+      client.custom_timestamp
+    else
+      Time.now.utc.iso8601
+    end
   end
 
   def_delegators :client, :host_id, :user_id, :partner_id
