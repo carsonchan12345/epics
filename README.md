@@ -181,7 +181,7 @@ client = Epics::Client.new(
   'host', 
   'user', 
   'partner',
-  custom_timestamp: -> { Time.now.utc.iso8601.sub(/\d{2}Z$/, '99Z') }  # Invalid seconds
+  custom_timestamp: -> { Time.now.utc.iso8601.sub(/:\d{2}Z$/, ':99Z') }  # Invalid seconds value
 )
 ```
 
